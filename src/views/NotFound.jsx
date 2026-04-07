@@ -38,6 +38,7 @@ const NotFound = ({ mode }) => {
         />
         <Button href='/' component={Link} variant='contained'>
           Back to Home
+          
         </Button>
       </div>
       <Illustrations maskImg={{ src: miscBackground }} />
