@@ -1,0 +1,85 @@
+{
+    "organization_id": 1,
+    "customer_id": 1,
+    "currency": "2",
+    "customer_tpn": "8775875",
+    "customer_name": "Joel York",
+    "sales_date": "2026-01-02",
+    "created_by": 1,
+    "status": "IP",
+    "items": [
+        {
+            "sales_item_type": "GOODS",
+            "goods_services_id": 1,
+            "goods_service_name": "good 1",
+            "goods_service_description": "Laborum Distinctio",
+            "unit_of_measurement_id": 1,
+            "unit_price": 200,
+            "quantity": 1,
+            "discount": "",
+            "gst_rate": 5
+        }
+    ],
+    "create_new_customer": false,
+    "new_customer_data": null,
+    "party_type": "INDIVIDUAL",
+    "payment_mode": "CASH",
+    "upi_id": "",
+    "check_number": "",
+    "journal_number": "756"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// new
+
+{
+    "organization_id": 1,
+    "customer_id": "",
+    "currency": "2",
+    "customer_tpn": "khghg",
+    "customer_name": "uyr",
+    "sales_date": "2026-01-02",
+    "created_by": 1,
+    "status": "IP",
+    "items": [
+        {
+            "sales_item_type": "GOODS",
+            "goods_services_id": 2,
+            "goods_service_name": "good 2",
+            "goods_service_description": "Ut atque tempora qui",
+            "unit_of_measurement_id": 1,
+            "unit_price": 100,
+            "quantity": 1,
+            "discount": "",
+            "gst_rate": 5
+        }
+    ],
+    "create_new_customer": true,
+    "new_customer_data": {
+        "name": "uyr",
+        "cid": "i5675",
+        "taxPayerRegNo": "khghg",
+        "taxPayerRegion": "khg",
+        "email": "mjh@m.kk",
+        "phone": "4433221177",
+        "taxPayerRegStatus": "NO"
+    },
+    "party_type": "INDIVIDUAL",
+    "payment_mode": "CASH",
+    "upi_id": "",
+    "check_number": "",
+    "journal_number": "ut"
+}

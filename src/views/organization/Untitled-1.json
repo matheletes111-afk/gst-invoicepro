@@ -1,0 +1,251 @@
+
+
+// partnership entry 1
+{
+    "orgType": "business",
+    "status": "A",
+    "businessDetails": {
+        "businessName": "test 2",
+        "businessNameCode": "7575",
+        "licenseNo": "hfjhf",
+        "companyRegistrationNo": "hjfjhf",
+        "taxpayerNumber": "675jhg",
+        "taxpayerType": "jhf",
+        "taxpayerRegistrationRegion": "RRCO Thimphu",
+        "businessLicenseRegion": "Phuentsholing",
+        "businessLocation": {
+            "dzongkhag": "Punakha",
+            "gewog": "Goenshari",
+            "village": "Goenshari Upper",
+            "wardName": "hf",
+            "buildingNo": "hfhjf",
+            "flatNo": "jmhfg",
+            "locality": "jg"
+        },
+        "officeLocation": {
+            "dzongkhag": "Paro",
+            "gewog": "Dopshari",
+            "village": "Jangsa",
+            "wardName": "mfhv",
+            "buildingNo": "jhdg",
+            "flatNo": "mhf",
+            "locality": "mhf"
+        },
+        "ownershipType": "Partnership",
+        "proprietor": {
+            "cid": "",
+            "name": "",
+            "phone": "",
+            "email": ""
+        },
+        "partners": [
+            {
+                "cid": "jhyf",
+                "name": "hf",
+                "phone": "776655674",
+                "email": "k@m.ll"
+            },
+            {
+                "cid": "yfhf",
+                "name": "mjhfhg",
+                "phone": "87584",
+                "email": "j@m.ll"
+            },
+            {
+                "cid": "jhfjhf",
+                "name": "hjfjh",
+                "phone": "56363653",
+                "email": "j@m.lk"
+            }
+        ],
+        "registeredCompany": {
+            "ceoMdName": "",
+            "ceoPhone": "",
+            "ceoEmail": ""
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+// sole proprietorship entry 2
+
+{
+    "orgType": "business",
+    "status": "A",
+    "businessDetails": {
+        "businessName": "Tara Oconnor",
+        "businessNameCode": "Macaulay Stewart",
+        "licenseNo": "Ipsum soluta natus q",
+        "companyRegistrationNo": "Peck and Mckay Inc",
+        "taxpayerNumber": "84",
+        "taxpayerType": "Corporis ullam qui s",
+        "taxpayerRegistrationRegion": "RRCO Gelephu",
+        "businessLicenseRegion": "Gelephu",
+        "businessLocation": {
+            "dzongkhag": "Punakha",
+            "gewog": "Chubu",
+            "village": "Chubu Lower",
+            "wardName": "Price Hewitt",
+            "buildingNo": "Nisi lorem quis in i",
+            "flatNo": "Cillum cupiditate il",
+            "locality": "Fugit eum est vero "
+        },
+        "officeLocation": {
+            "dzongkhag": "Paro",
+            "gewog": "Lamgong",
+            "village": "Shaba",
+            "wardName": "Amela Workman",
+            "buildingNo": "Sequi ex proident v",
+            "flatNo": "Voluptatum ratione i",
+            "locality": "Ut quo nemo labore q"
+        },
+        "ownershipType": "Sole Proprietorship",
+        "proprietor": {
+            "cid": "Dolor autem incididu",
+            "name": "Hunter Madden",
+            "phone": "+1 (646) 516-3297",
+            "email": "keqe@mailinator.com"
+        },
+        "partners": [
+            {
+                "cid": "",
+                "name": "",
+                "phone": "",
+                "email": ""
+            }
+        ],
+        "registeredCompany": {
+            "ceoMdName": "",
+            "ceoPhone": "",
+            "ceoEmail": ""
+        }
+    }
+}
+
+
+
+
+
+
+
+// registry entry 3
+{
+    "orgType": "business",
+    "status": "A",
+    "businessDetails": {
+        "businessName": "Aline Ross",
+        "businessNameCode": "Chantale Hester",
+        "licenseNo": "Modi eaque voluptate",
+        "companyRegistrationNo": "Holloway and Pugh Plc",
+        "taxpayerNumber": "575",
+        "taxpayerType": "Provident consectet",
+        "taxpayerRegistrationRegion": "RRCO Phuentsholing",
+        "businessLicenseRegion": "Samdrup Jongkhar",
+        "businessLocation": {
+            "dzongkhag": "Punakha",
+            "gewog": "Chubu",
+            "village": "Chubu Lower",
+            "wardName": "Ainsley Paul",
+            "buildingNo": "Sint neque laboriosa",
+            "flatNo": "Deserunt rerum sunt ",
+            "locality": "Fuga Pariatur Est "
+        },
+        "officeLocation": {
+            "dzongkhag": "Paro",
+            "gewog": "Dopshari",
+            "village": "Jangsa",
+            "wardName": "Nayda Pruitt",
+            "buildingNo": "Rem qui quia quos si",
+            "flatNo": "Sit exercitation omn",
+            "locality": "Maxime molestiae omn"
+        },
+        "ownershipType": "Registered Company",
+        "proprietor": {
+            "cid": "",
+            "name": "",
+            "phone": "",
+            "email": ""
+        },
+        "partners": [
+            {
+                "cid": "",
+                "name": "",
+                "phone": "",
+                "email": ""
+            }
+        ],
+        "registeredCompany": {
+            "ceoMdName": "Levi Padilla",
+            "ceoPhone": "+1 (314) 413-9188",
+            "ceoEmail": "riletepek@mailinator.com"
+        }
+    }
+}
+
+
+
+
+// govt 
+{
+    "orgType": "government",
+    "status": "A",
+    "governmentAgencyDetails": {
+        "agencyName": "Jescie Olson",
+        "agencyCode": "Sunt nesciunt persp",
+        "tpn": "Quaerat quisquam exe",
+        "taxpayerRegistrationRegion": "RRCO Thimphu",
+        "registrationType": "Mandatory",
+        "contactPerson": "Elizabeth Brown",
+        "contactEmail": "zydofo@mailinator.com",
+        "contactPhone": "+1 (724) 522-2912"
+    }
+}
+
+
+
+
+
+
+// corporation
+{
+    "orgType": "corporation",
+    "status": "A",
+    "corporationDetails": {
+        "corporationName": "Irene Huff",
+        "organizationCode": "Yates Burt Trading",
+        "tpn": "Nisi magni consectet",
+        "taxpayerRegistrationRegion": "",
+        "registrationType": "",
+        "contactPerson": "Drew Montgomery",
+        "contactEmail": "kygobagud@mailinator.com",
+        "contactPhone": "+1 (375) 208-8064"
+    }
+}
+
+
+
+
+
+// cso
+{
+    "orgType": "cso",
+    "status": "A",
+    "csoDetails": {
+        "agencyName": "Alea Cook",
+        "agencyCode": "Tempora consectetur ",
+        "registrationNo": "Velit reprehenderit",
+        "tpn": "Reiciendis sunt fuga",
+        "taxpayerRegistrationRegion": "",
+        "registrationType": "",
+        "contactPerson": "Evelyn Heath",
+        "contactEmail": "vuleful@mailinator.com",
+        "contactPhone": "+1 (442) 501-8307"
+    }
+}

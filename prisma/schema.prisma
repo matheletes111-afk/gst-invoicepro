@@ -1,0 +1,1435 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int          @id @default(autoincrement())
+  name           String?
+  email          String       @unique
+  password       String
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  roles          String?
+  ActivityLog    ActivityLog[]
+}
+
+enum ItemStatus {
+  A // Active
+  I // Inactive
+}
+
+model Item {
+  itemId   Int     @id @default(autoincrement())
+  itemType String
+  name     String
+  code     String  @unique
+  desc     String?
+  price    Float
+
+  unit       Int // foreign key integer column
+  unitObject Unit @relation(fields: [unit], references: [id])
+
+  status    ItemStatus @default(A)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  isDeleted Int        @default(0)
+}
+
+model GstSlab {
+  slabId        Int           @id @default(autoincrement())
+  slabName      String
+  startRange    Float
+  endRange      Float
+  effectiveDate DateTime
+  remarks       String?
+  status        ItemStatus    @default(A)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  isDeleted     Int           @default(0)
+  rates         GstRate[]
+  gstMappings   MapGstRates[]
+}
+
+//===== Business Reg crud schema start =======//
+
+/// Top Level - District
+model Dzongkhag {
+  dzongkhagId Int        @id @default(autoincrement())
+  name        String
+  code        String? // Optional govt code
+  status      ItemStatus @default(A)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  gewogs    Gewog[]
+  suppliers SupplierMaster[]
+  dealers   DealerMaster[]
+}
+
+/// Second Level - Subdivision
+model Gewog {
+  gewogId     Int        @id @default(autoincrement())
+  dzongkhagId Int
+  name        String
+  code        String?
+  status      ItemStatus @default(A)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  dzongkhag Dzongkhag        @relation(fields: [dzongkhagId], references: [dzongkhagId])
+  villages  Village[]
+  suppliers SupplierMaster[]
+  dealers   DealerMaster[]
+}
+
+/// Third Level - Village
+model Village {
+  villageId Int        @id @default(autoincrement())
+  gewogId   Int
+  name      String
+  code      String?
+  status    ItemStatus @default(A)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  gewog     Gewog            @relation(fields: [gewogId], references: [gewogId])
+  suppliers SupplierMaster[]
+  dealers   DealerMaster[]
+}
+
+model Organization {
+  id        Int        @id @default(autoincrement())
+  orgType   OrgType
+  status    ItemStatus @default(A)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  isDeleted Int        @default(0)
+
+  // Relations
+  users                  User[]
+  businessDetails        BusinessDetails?
+  governmentAgencyDetail GovernmentAgencyDetails?
+  corporationDetail      CorporationDetails?
+  csoDetail              CsoDetails?
+  invoices               SecondHandGoodsSalesInvoice[]
+  sales                  Sales[]
+  adjustment             Adjustment[]
+  goodsCatalog           GoodsCatalog[]
+  serviceCatalog         ServiceCatalog[]
+  parties                Party[]
+  suppliers              SupplierMaster[]
+  dealers                DealerMaster[]
+  Purchases           Purchase[] 
+  InventoryMasters InventoryMaster[]
+  secondHandPurchases SecondHandPurchase[]
+  SecondHandSales     SecondHandSale[]
+  
+}
+
+enum OrgType {
+  business
+  government
+  corporation
+  cso
+}
+
+model BusinessDetails {
+  id                    Int     @id @default(autoincrement())
+  organizationId        Int     @unique
+  businessName          String?
+  businessNameCode      String?
+  licenseNo             String?
+  companyRegistrationNo String?
+
+  taxpayerNumber             String?
+  taxpayerType               String?
+  taxpayerRegistrationRegion String?
+
+  businessLicenseRegion String?
+  businessLocationJson  Json?
+  officeLocationJson    Json?
+
+  ownershipType String? // Sole / Partnership / Registered Company
+
+  proprietorJson        Json?
+  partnersJson          Json?
+  registeredCompanyJson Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model GovernmentAgencyDetails {
+  id             Int     @id @default(autoincrement())
+  organizationId Int     @unique
+  agencyName     String?
+  agencyCode     String?
+  tpn            String?
+
+  taxpayerRegistrationRegion String?
+  registrationType           String?
+
+  contactPerson String?
+  contactEmail  String?
+  contactPhone  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model CorporationDetails {
+  id               Int     @id @default(autoincrement())
+  organizationId   Int     @unique
+  corporationName  String?
+  organizationCode String?
+  tpn              String?
+
+  taxpayerRegistrationRegion String?
+  registrationType           String? // Mandatory / Voluntary
+
+  contactPerson String?
+  contactEmail  String?
+  contactPhone  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model CsoDetails {
+  id             Int     @id @default(autoincrement())
+  organizationId Int     @unique
+  agencyName     String?
+  agencyCode     String?
+  registrationNo String?
+  tpn            String?
+
+  taxpayerRegistrationRegion String?
+  registrationType           String?
+
+  contactPerson String?
+  contactEmail  String?
+  contactPhone  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+//======== Business Reg crud schema end ===========//
+
+enum ServiceStatus {
+  A // Active
+  I // Inactive
+  D // Deleted
+}
+
+model ServiceCatalog {
+  service_id          Int           @id @default(autoincrement())
+  service_name        String
+  service_code        String        @unique
+  service_description String?       @db.Text
+  status              ServiceStatus @default(A)
+  organizationId      Int
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  organization        Organization  @relation(fields: [organizationId], references: [id])
+  salesItem           SalesItem[]   @relation("ServiceItems") // Match name in SalesItem
+  adjustmentItem      AdjustmentItem[] @relation("ServiceAdjustmentItems")
+  PurchaseItems PurchaseItem[] @relation("PurchaseServiceItems")
+  InventoryMasters InventoryMaster[] 
+  secondHandPurchaseItems SecondHandPurchaseItem[] @relation("ServiceSecondHandPurchaseItems")
+  SecondHandSaleItems SecondHandSaleItem[]
+}
+
+model GoodsCatalog {
+  goodsId          Int           @id @default(autoincrement())
+  goodsName        String
+  goodsCode        String        @unique // HS Code
+  goodsDescription String?       @db.Text
+  goodsPrice       Float
+  unitId           Int
+  organizationId   Int
+  status           ServiceStatus @default(A)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  organization     Organization  @relation(fields: [organizationId], references: [id])
+  unit             Unit          @relation(fields: [unitId], references: [id])
+  salesItem        SalesItem[]   @relation("GoodsItems") // Match name in SalesItem
+  adjustmentItem   AdjustmentItem[] @relation("GoodsAdjustmentItems")
+  PurchaseItems PurchaseItem[] @relation("PurchaseGoodsItems")
+  InventoryMasters InventoryMaster[] 
+  secondHandPurchaseItems SecondHandPurchaseItem[] @relation("GoodsSecondHandPurchaseItems")
+  SecondHandSaleItems SecondHandSaleItem[]
+}
+
+enum MappingType {
+  GOODS
+  SERVICE
+}
+
+enum GstStatus {
+  APPLICABLE
+  EXEMPT
+  ZERO_RATED
+}
+
+model MapGstRates {
+  mappingId      Int           @id @default(autoincrement())
+  type           MappingType // GOODS or SERVICE
+  serviceGoodsId Int // ID of GoodsCatalog or ServiceCatalog
+  slabId         Int?
+  gstStatus      GstStatus     @default(APPLICABLE) // APPLICABLE, EXEMPT, ZERO_RATED
+  rateId         Int?
+  minimumValue   Float?
+  remarks        String?       @db.Text
+  status         ServiceStatus @default(A)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relations
+  slab GstSlab? @relation(fields: [slabId], references: [slabId])
+  rate GstRate? @relation(fields: [rateId], references: [rateId])
+}
+
+model GstRate {
+  rateId        Int           @id @default(autoincrement()) // Primary key
+  slabId        Int? // Optional slab
+  gstRate       Float // GST rate value
+  effectiveDate DateTime // Effective date
+  remarks       String? // Optional
+  status        GstRateStatus @default(A) // A = Active, I = Inactive, D = Deleted
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  slab        GstSlab?      @relation(fields: [slabId], references: [slabId])
+  gstMappings MapGstRates[]
+}
+
+enum GstRateStatus {
+  A // Active
+  I // Inactive
+  D // Deleted (soft delete)
+}
+
+enum CurrencyStatus {
+  A
+  I
+  D
+}
+
+model Currency {
+  currencyId     Int            @id @default(autoincrement())
+  currencyName   String
+  currencySymbol String
+  status         CurrencyStatus @default(A)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  exchangeRates  ExchangeRateMaster[]
+  purchaseOrders SecondHandGoodsPurchase[]
+  salesOrders    SecondHandGoodsSales[]
+  invoices       SecondHandGoodsSalesInvoice[]
+  sales          Sales[]
+  Purchases   Purchase[] 
+  secondHandPurchases SecondHandPurchase[]
+  SecondHandSales     SecondHandSale[]
+}
+
+model ExchangeRateMaster {
+  exchangeId   Int            @id @default(autoincrement())
+  currencyId   Int
+  exchangeRate Float
+  date         DateTime
+  status       CurrencyStatus @default(A)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Relations
+  currency Currency @relation(fields: [currencyId], references: [currencyId])
+}
+
+model SupplierMaster {
+  supplierId        Int           @id @default(autoincrement())
+  businessLicenseNo String?
+  supplierName      String
+  taxpayerRegStatus YesNo         @default(NO)
+  taxpayerRegNo     String?
+  taxpayerRegRegion String?
+  dzongkhagId       Int?
+  gewogId           Int?
+  villageId         Int?
+  location          String?       @db.Text
+  contactName       String?
+  contactEmail      String?
+  contactPhone      String?
+  organizationId    Int
+  status            ServiceStatus @default(A)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  organization      Organization  @relation(fields: [organizationId], references: [id])
+  dzongkhag         Dzongkhag?    @relation(fields: [dzongkhagId], references: [dzongkhagId])
+  gewog             Gewog?        @relation(fields: [gewogId], references: [gewogId])
+  village           Village?      @relation(fields: [villageId], references: [villageId])
+  purchaseOrders    SecondHandGoodsPurchase[]
+  Purchases Purchase[] @relation("PurchaseSupplier")
+  secondHandPurchases SecondHandPurchase[]
+}
+
+model DealerMaster {
+  dealerId          Int           @id @default(autoincrement())
+  businessLicenseNo String?
+  dealerName        String
+  taxpayerRegStatus YesNo         @default(NO)
+  taxpayerRegNo     String?
+  taxpayerRegRegion String?
+  dzongkhagId       Int?
+  gewogId           Int?
+  villageId         Int?
+  location          String?       @db.Text
+  contactName       String?
+  contactEmail      String?
+  contactPhone      String?
+  organizationId    Int
+  status            ServiceStatus @default(A)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  organization      Organization  @relation(fields: [organizationId], references: [id])
+  dzongkhag         Dzongkhag?    @relation(fields: [dzongkhagId], references: [dzongkhagId])
+  gewog             Gewog?        @relation(fields: [gewogId], references: [gewogId])
+  village           Village?      @relation(fields: [villageId], references: [villageId])
+  purchaseOrders    SecondHandGoodsPurchase[]
+  Purchases Purchase[] @relation("PurchaseDealer")
+  secondHandPurchases SecondHandPurchase[]
+}
+
+model SecondHandGoodsPurchase {
+  purchaseOrderId   Int           @id @default(autoincrement())
+  supplierId        Int?
+  dealerId          Int?
+  date              DateTime // Date of goods receipt
+  purchaseOrderNo   String?
+  purchaseOrderDate DateTime?
+  currencyId        Int?
+  totalPrice        Float         @default(0)
+  status            ServiceStatus @default(A)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  supplier SupplierMaster?               @relation(fields: [supplierId], references: [supplierId])
+  dealer   DealerMaster?                 @relation(fields: [dealerId], references: [dealerId])
+  currency Currency?                     @relation(fields: [currencyId], references: [currencyId])
+  items    SecondHandGoodsPurchaseItem[]
+}
+
+model SecondHandGoodsPurchaseItem {
+  itemId           Int           @id @default(autoincrement())
+  purchaseOrderId  Int
+  goodsName        String
+  goodsDescription String?       @db.Text
+  unitId           Int?
+  unitPrice        Float
+  quantity         Float
+  amount           Float // Unit Price * Quantity
+  status           ServiceStatus @default(A)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  purchaseOrder SecondHandGoodsPurchase @relation(fields: [purchaseOrderId], references: [purchaseOrderId], onDelete: Cascade)
+  unit          Unit?                   @relation(fields: [unitId], references: [id])
+}
+
+model SecondHandGoodsInventory {
+  inventoryId      Int           @id @default(autoincrement())
+  goodsName        String
+  goodsDescription String?       @db.Text
+  unitId           Int?
+  unitPrice        Float
+  quantity         Float
+  inventoryValue   Float // Unit Price * Quantity
+  status           ServiceStatus @default(A)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  unit Unit? @relation(fields: [unitId], references: [id])
+}
+
+model SecondHandGoodsSales {
+  salesOrderId Int           @id @default(autoincrement())
+  customer     String? // Customer Name
+  customerTPN  String? // Customer Taxpayer Number
+  date         DateTime // Date of goods issue
+  invoiceNo    String?
+  invoiceDate  DateTime?
+  currencyId   Int?
+  totalPrice   Float         @default(0)
+  status       ServiceStatus @default(A)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  currency Currency?                     @relation(fields: [currencyId], references: [currencyId])
+  items    SecondHandGoodsSalesItem[]
+  invoices SecondHandGoodsSalesInvoice[]
+  
+}
+
+model SecondHandGoodsSalesItem {
+  itemId           Int           @id @default(autoincrement())
+  salesOrderId     Int
+  goodsName        String
+  goodsDescription String?       @db.Text
+  unitId           Int?
+  unitPrice        Float
+  quantity         Float
+  amount           Float // Unit Price * Quantity
+  status           ServiceStatus @default(A)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  salesOrder SecondHandGoodsSales @relation(fields: [salesOrderId], references: [salesOrderId], onDelete: Cascade)
+  unit       Unit?                @relation(fields: [unitId], references: [id])
+  
+}
+
+model SecondHandGoodsSalesInvoice {
+  invoiceId           Int           @id @default(autoincrement())
+  invoiceNo           String        @unique // Auto-generated: organizationcode/taxyear/month/10digits
+  invoiceDate         DateTime
+  isOriginal          Boolean       @default(true) // Original or Duplicate
+  salesOrderId        Int? // Optional link to sales order
+  organizationId      Int? // Supplier organization
+  partyId             Int? // Customer party
+  // Customer details (can be from party or entered directly)
+  customerName        String?
+  customerTPN         String?
+  customerAddress     String?       @db.Text
+  customerEmail       String?
+  customerPhone       String?
+  currencyId          Int?
+  // Invoice totals
+  totalAmount         Float         @default(0)
+  exemptAmount        Float         @default(0)
+  taxableAmount       Float         @default(0)
+  gstRate             Float? // GST rate applied
+  gstAmount           Float         @default(0)
+  totalInvoiceValue   Float         @default(0)
+  amountInWords       String?       @db.Text
+  // Footer details
+  declaration         String?       @default("We certify that the particulars are true")
+  authorizedSignature String? // Path to signature image
+  placeOfSupply       String?
+  status              ServiceStatus @default(A)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  // Relations
+  salesOrder   SecondHandGoodsSales?             @relation(fields: [salesOrderId], references: [salesOrderId])
+  organization Organization?                     @relation(fields: [organizationId], references: [id])
+  party        Party?                            @relation(fields: [partyId], references: [partyId])
+  currency     Currency?                         @relation(fields: [currencyId], references: [currencyId])
+  items        SecondHandGoodsSalesInvoiceItem[]
+}
+
+model SecondHandGoodsSalesInvoiceItem {
+  itemId      Int           @id @default(autoincrement())
+  invoiceId   Int
+  slNo        Int // Serial number
+  description String
+  quantity    Float
+  unitId      Int?
+  rate        Float
+  discount    Float         @default(0)
+  saleAmount  Float // Rate * Quantity - Discount
+  gstStatus   GstStatus? // APPLICABLE, EXEMPT, ZERO_RATED
+  status      ServiceStatus @default(A)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  invoice SecondHandGoodsSalesInvoice @relation(fields: [invoiceId], references: [invoiceId], onDelete: Cascade)
+  unit    Unit?                       @relation(fields: [unitId], references: [id])
+}
+
+// ============== Party section crud schema start =============//
+
+enum YesNo {
+  YES
+  NO
+}
+
+model Party {
+  partyId        Int        @id @default(autoincrement())
+  partyType      PartyType
+  organizationId Int
+  status         ItemStatus @default(A)
+  isDeleted      Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  // Relations
+  organization           Organization           @relation(fields: [organizationId], references: [id])
+  businessParty          BusinessParty?
+  governmentAgencyParty  GovernmentAgencyParty?
+  corporationParty       CorporationParty?
+  csoParty               CSOParty?
+  individualParty        IndividualParty?
+  invoices               SecondHandGoodsSalesInvoice[]
+  sales                  Sales[]
+  adjustment             Adjustment[]
+  SecondHandSales     SecondHandSale[]
+}
+
+enum PartyType {
+  BUSINESS
+  GOVERNMENT_AGENCY
+  CORPORATION
+  CSO
+  INDIVIDUAL
+}
+
+model BusinessParty {
+  id                    Int     @id @default(autoincrement())
+  partyId               Int     @unique
+  businessName          String?
+  licenseNo             String?
+  companyRegistrationNo String?
+  businessLicenseRegion String?
+
+  taxPayerRegStatus YesNo   @default(NO) // YES / NO enum
+  taxPayerRegNo     String?
+  taxPayerRegion    String?
+
+  address     String?
+  officeEmail String?
+  officePhone String?
+
+  representativeName  String?
+  representativeEmail String?
+  representativePhone String?
+
+  party Party @relation(fields: [partyId], references: [partyId])
+}
+
+model GovernmentAgencyParty {
+  id         Int     @id @default(autoincrement())
+  partyId    Int     @unique
+  agencyName String?
+
+  taxPayerRegStatus YesNo   @default(NO) // YES / NO enum
+  taxPayerRegNo     String?
+  taxPayerRegion    String?
+
+  address     String?
+  officeEmail String?
+  officePhone String?
+
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+
+  party Party @relation(fields: [partyId], references: [partyId])
+}
+
+model CorporationParty {
+  id              Int     @id @default(autoincrement())
+  partyId         Int     @unique
+  corporationName String?
+
+  taxPayerRegStatus YesNo   @default(NO) // YES / NO enum
+  taxPayerRegNo     String?
+  taxPayerRegion    String?
+
+  address     String?
+  officeEmail String?
+  officePhone String?
+
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+
+  party Party @relation(fields: [partyId], references: [partyId])
+}
+
+model CSOParty {
+  id                Int     @id @default(autoincrement())
+  partyId           Int     @unique
+  csoRegistrationNo String? // CSO Registration No
+  csoName String?
+  taxPayerRegStatus YesNo   @default(NO) // YES / NO enum
+  taxPayerRegNo     String?
+  taxPayerRegion    String?
+
+  address     String?
+  officeEmail String?
+  officePhone String?
+
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+
+  party Party @relation(fields: [partyId], references: [partyId])
+}
+
+model IndividualParty {
+  id      Int     @id @default(autoincrement())
+  partyId Int     @unique
+  cid     String?
+  name     String?
+
+  taxPayerRegStatus YesNo   @default(NO) // YES / NO enum
+  taxPayerRegion    String?
+  taxPayerRegNo     String?
+
+  email String?
+  phone String?
+
+  party Party @relation(fields: [partyId], references: [partyId])
+}
+
+// ============== Party section crud schema end =============//
+
+model Unit {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  status      ItemStatus @default(A)
+  isDeleted   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  items          Item[]
+  goods          GoodsCatalog[]
+  purchaseItems  SecondHandGoodsPurchaseItem[]
+  inventoryItems SecondHandGoodsInventory[]
+  salesItems     SecondHandGoodsSalesItem[]
+  invoiceItems   SecondHandGoodsSalesInvoiceItem[]
+  salesItem      SalesItem[]
+  adjustmentsalesItem      AdjustmentItem[]
+  PurchaseItems PurchaseItem[]
+  secondHandPurchaseItems SecondHandPurchaseItem[]
+  InventoryMasters InventoryMaster[]
+  SecondHandSaleItems SecondHandSaleItem[]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// sales section start
+
+enum SalesStatus {
+  IP // In Progress
+  C // Completed
+  D // Deleted
+  CN // Cancelled
+}
+
+enum SalesItemType {
+  GOODS
+  SERVICE
+}
+
+enum EmailOriginalInvoiceSentStatus {
+  Y
+  N
+}
+
+enum PaymentMode {
+  CASH
+  CHEQUE
+  PAYMENT_GATEWAY
+  MBOB
+  MPAY
+  TPAY
+  DRUKPAY
+  EPAY
+  DK_BANK
+}
+
+
+
+model Sales {
+  sales_id Int @id @default(autoincrement())
+
+  organization_id Int
+  customer_id     Int
+  currency        Int
+
+  customer_tpn  String? @db.VarChar(200)
+  customer_name String? @db.VarChar(500)
+
+  sales_date     DateTime @db.Date
+  sales_amount Decimal @db.Decimal(10, 2) ///("addition of exempt and taxable")
+  exempt_amount  Decimal  @db.Decimal(10, 2)
+  taxable_amount Decimal  @db.Decimal(10, 2)
+  gst_amount Decimal @db.Decimal(10, 2) @default(0) ///("5% of taxable")
+
+  total_invoice_amount Decimal @db.Decimal(10, 2) @default(0) ///("Sum of exempt amount, taxable amount, and GST amount")
+
+  sales_invoice_no String? @db.VarChar(50)
+
+  status SalesStatus @default(IP)
+
+  payment_mode    PaymentMode?
+
+  // Payment Gateway
+  transaction_id  String?      @db.VarChar(100)
+  
+  // mBOB, mPAY, TPay, DrukPay, ePay, DK Bank
+  journal_number  String?      @db.VarChar(50)
+  
+  // Cheque
+  cheque_number   String?      @db.VarChar(50)
+  bank_name       String? 
+
+
+  created_by Int
+  created_on DateTime @db.Date
+  emailOriginalInvoiceSent EmailOriginalInvoiceSentStatus @default(Y)
+
+  // Relations
+  items SalesItem[]
+
+  organization  Organization @relation(fields: [organization_id], references: [id])
+  customer      Party        @relation(fields: [customer_id], references: [partyId])
+  currency_info Currency     @relation(fields: [currency], references: [currencyId])
+  adjustment      Adjustment[]
+
+  @@map("tbl_sales")
+}
+
+model SalesItem {
+  sales_item_id Int @id @default(autoincrement())
+  sales_id      Int
+
+  sales_item_type        SalesItemType
+
+   // Separate fields for goods and service
+  goods_id      Int?  // when type = GOODS
+  service_id    Int?  // when type = SERVICE
+
+  goods_service_name     String?       @db.VarChar(500)
+  goods_service_description    String?       @db.VarChar(2500)
+  unit_of_measurement_id Int
+
+  unit_price                 Decimal @db.Decimal(10, 2)
+  quantity                   Decimal @db.Decimal(10, 2)
+  amount                     Decimal @db.Decimal(10, 2)
+  discount                   Decimal @db.Decimal(10, 2)
+  amount_after_discount      Decimal @db.Decimal(10, 2)
+  gst_amount                 Decimal @db.Decimal(10, 2)
+  gst_percentage             String?       @db.VarChar(500)
+  goods_service_total_amount Decimal @db.Decimal(10, 2)  ///("refer as payable amount")
+
+  created_by Int
+  created_on DateTime @db.Date
+
+  // Relations
+  sales      Sales           @relation(fields: [sales_id], references: [sales_id], onDelete: Cascade)
+  goods      GoodsCatalog?   @relation("GoodsItems", fields: [goods_id], references: [goodsId], map: "fk_salesitem_goods")
+  service    ServiceCatalog? @relation("ServiceItems", fields: [service_id], references: [service_id], map: "fk_salesitem_service")
+  unitObject Unit            @relation(fields: [unit_of_measurement_id], references: [id], map: "fk_salesitem_unit")
+
+  @@map("tbl_sales_items")
+}
+
+
+
+model GstInvoiceOriginal {
+  gst_invoice_id Int @id @default(autoincrement())
+
+  organization_id Int
+  sales_id        Int
+  customer_id     Int
+
+  gst_invoice_date DateTime @db.Date
+
+  total_sales_amount   Decimal @db.Decimal(10, 2)
+  total_exempt_amount  Decimal @db.Decimal(10, 2)
+  total_taxable_amount Decimal @db.Decimal(10, 2)
+  total_gst_amount     Decimal @db.Decimal(10, 2)
+  total_invoice_amount Decimal @db.Decimal(10, 2)
+
+  gst_invoice_no String? @db.VarChar(50)
+
+  created_by Int
+
+  // timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  @@map("tbl_invocie_original")
+}
+
+// sales section end
+
+
+model tbl_invoice_copy {
+  gst_invoice_copy_id   String   @id @default(uuid())
+  gst_invoice_id        Int
+  organization_id       Int
+  sales_id              Int
+  customer_id           Int
+  gst_invoice_date      DateTime @db.Date
+  total_sales_amount    Decimal @db.Decimal(10, 2)
+  total_exempt_amount   Decimal @db.Decimal(10, 2)
+  total_taxable_amount  Decimal @db.Decimal(10, 2)
+  total_gst_amount      Decimal @db.Decimal(10, 2)
+  total_invoice_amount  Decimal @db.Decimal(10, 2)
+  gst_invoice_no        String? @db.VarChar(50)
+  duplicate_issue_date  DateTime?
+  created_by            Int
+  created_on            DateTime
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  @@map("tbl_invoice_copy")
+}
+
+
+
+
+
+enum AdjustmentType {
+  DEBIT
+  CREDIT
+  NONE
+}
+
+
+model Adjustment {
+  adjustment_id Int @id @default(autoincrement())
+  adjustment_note_no       String      @db.VarChar(200)
+  date                     DateTime    @db.Date
+  organization_id          Int
+  customer_id              Int?
+  sale_id               Int?
+  invoice_no               String       @db.VarChar(200)
+  sales_amount Decimal @db.Decimal(10, 2) ///("addition of exempt and taxable")
+  exempt_amount  Decimal  @db.Decimal(10, 2)
+  taxable_amount Decimal  @db.Decimal(10, 2)
+  gst_amount Decimal @db.Decimal(10, 2) @default(0) ///("5% of taxable")
+  total_invoice_amount Decimal @db.Decimal(10, 2) @default(0) ///("Sum of exempt amount, taxable amount, and GST amount")
+  total_adjustment_amount  Decimal      @db.Decimal(10, 2)
+  effect_on_gst_payable    Decimal      @db.Decimal(10, 2) @default(0)
+  status SalesStatus @default(IP)
+  created_by Int
+  created_on DateTime @db.Date
+  remark String @db.Text
+  adjustment_type  AdjustmentType  @default(NONE)
+  adjustment_amount     Decimal       @db.Decimal(10, 2)
+
+
+  // Relations
+  customer      Party?        @relation(fields: [customer_id], references: [partyId])
+  organization  Organization  @relation(fields: [organization_id], references: [id])
+  invoice       Sales?        @relation(fields: [sale_id], references: [sales_id])
+
+
+  adjustmentItems AdjustmentItem[]
+
+  @@map("tbl_adjustment")
+}
+
+model AdjustmentItem {
+  adjustment_item_id Int @id @default(autoincrement())
+  adjustment_id       Int
+  sales_item_type        SalesItemType
+
+
+  // Separate fields for goods and service
+  goods_id      Int?  // when type = GOODS
+  service_id    Int?  // when type = SERVICE
+
+  goods_service_name     String?       @db.VarChar(500)
+  goods_service_description    String?       @db.VarChar(2500)
+  unit_of_measurement_id Int
+
+  unit_price                 Decimal @db.Decimal(10, 2)
+  quantity                   Decimal @db.Decimal(10, 2)
+  amount                     Decimal @db.Decimal(10, 2)
+  discount                   Decimal @db.Decimal(10, 2)
+  amount_after_discount      Decimal @db.Decimal(10, 2)
+  gst_amount                 Decimal @db.Decimal(10, 2)
+  gst_percentage             String?       @db.VarChar(500)
+  goods_service_total_amount Decimal @db.Decimal(10, 2)  ///("refer as payable amount")
+  reason_for_adjustment String?      @db.VarChar(1000)
+  adjustment_type       AdjustmentType
+  adjustment_amount     Decimal       @db.Decimal(10, 2)
+  created_by Int
+  created_on DateTime @db.Date
+  
+  // Relations
+  adjustment Adjustment @relation(fields: [adjustment_id], references: [adjustment_id], onDelete: Cascade)
+  goods      GoodsCatalog?   @relation("GoodsAdjustmentItems", fields: [goods_id], references: [goodsId], map: "fk_adjustmentitem_goods")
+
+  service    ServiceCatalog? @relation("ServiceAdjustmentItems", fields: [service_id], references: [service_id], map: "fk_adjustmentitem_service")
+
+  unitObject Unit @relation(fields: [unit_of_measurement_id], references: [id], map: "fk_adjustmentitem_unit")
+
+
+  @@map("tbl_adjustment_items")
+}
+
+
+
+
+model CopyTrackingAdjustment {
+  copy_tracking_adjustment_id Int      @id @default(autoincrement())
+  adjustment_id               Int
+  issue_date                  DateTime @db.Date
+  created_at                  DateTime @default(now())
+  updated_at                  DateTime @updatedAt
+  @@map("tbl_copy_tracking_adjustment")
+}
+
+
+
+
+
+
+
+
+// Purchase Item and self invoice 
+
+enum PurchaseItemType {
+  GOODS
+  SERVICE
+}
+
+
+enum PurchaseStatus{
+  O
+  C
+}
+
+model Purchase {
+  purchase_id Int @id @default(autoincrement())
+
+  organization_id Int
+  supplier_id     Int
+  dealer_id       Int?
+  currency        Int
+
+  purchase_date     DateTime @db.Date
+  purchase_order_no String   @db.VarChar(50)
+
+  sales_amount Decimal @db.Decimal(10, 2) ///("addition of exempt and taxable")
+  exempt_amount  Decimal  @db.Decimal(10, 2)
+  taxable_amount Decimal  @db.Decimal(10, 2)
+  gst_amount Decimal @db.Decimal(10, 2) @default(0) ///("5% of taxable")
+  total_invoice_amount Decimal @db.Decimal(10, 2) @default(0) 
+  purchase_status PurchaseStatus @default(O)
+
+  created_by Int
+  created_on DateTime @db.Date
+  
+  payment_mode    PaymentMode?
+
+  // Payment Gateway
+  transaction_id  String?      @db.VarChar(100)
+  
+  // mBOB, mPAY, TPay, DrukPay, ePay, DK Bank
+  journal_number  String?      @db.VarChar(50)
+  
+  // Cheque
+  cheque_number   String?      @db.VarChar(50)
+  bank_name       String? 
+
+
+  // Relations
+  items         PurchaseItem[]
+  organization  Organization    @relation(fields: [organization_id], references: [id])
+  supplier      SupplierMaster  @relation("PurchaseSupplier", fields: [supplier_id], references: [supplierId])
+  dealer        DealerMaster?   @relation("PurchaseDealer", fields: [dealer_id], references: [dealerId])
+  currency_info Currency        @relation(fields: [currency], references: [currencyId])
+
+  @@map("tbl_purchase")
+}
+
+
+
+model PurchaseItem {
+  purchase_item_id Int @id @default(autoincrement())
+  purchase_id      Int
+
+  purchase_item_type PurchaseItemType
+
+  goods_id   Int?
+  service_id Int?
+
+  goods_service_name        String?
+  goods_service_description String?
+
+  unit_of_measurement_id Int
+
+  unit_price Decimal @db.Decimal(10, 2)
+  quantity   Decimal @db.Decimal(10, 2)
+  amount                     Decimal @db.Decimal(10, 2)
+  discount                   Decimal @db.Decimal(10, 2)
+  amount_after_discount      Decimal @db.Decimal(10, 2)
+  gst_amount                 Decimal @db.Decimal(10, 2)
+  gst_percentage             String?       @db.VarChar(500)
+  goods_service_total_amount Decimal @db.Decimal(10, 2) 
+
+  created_by Int
+  created_on DateTime @db.Date
+
+  // Relations
+  Purchase Purchase    @relation(fields: [purchase_id], references: [purchase_id], onDelete: Cascade)
+  goods       GoodsCatalog?  @relation("PurchaseGoodsItems", fields: [goods_id], references: [goodsId])
+  service     ServiceCatalog?@relation("PurchaseServiceItems", fields: [service_id], references: [service_id])
+  unitObject  Unit           @relation(fields: [unit_of_measurement_id], references: [id])
+
+  @@index([purchase_id])
+  @@map("tbl_purchase_items")
+}
+
+
+
+
+model SecondHandPurchase {
+  purchase_id Int @id @default(autoincrement())
+
+  organization_id Int
+  supplier_id     Int
+  dealer_id       Int?
+  currency        Int
+
+  purchase_date     DateTime @db.Date
+  purchase_order_no String   @db.VarChar(50)
+
+  sales_amount Decimal @db.Decimal(10, 2) ///("addition of exempt and taxable")
+  exempt_amount  Decimal  @db.Decimal(10, 2)
+  taxable_amount Decimal  @db.Decimal(10, 2)
+  gst_amount Decimal @db.Decimal(10, 2) @default(0) ///("5% of taxable")
+  total_invoice_amount Decimal @db.Decimal(10, 2) @default(0) 
+
+  created_by Int
+  created_on DateTime @db.Date
+  
+  payment_mode    PaymentMode?
+
+  // Payment Gateway
+  transaction_id  String?      @db.VarChar(100)
+  
+  // mBOB, mPAY, TPay, DrukPay, ePay, DK Bank
+  journal_number  String?      @db.VarChar(50)
+  
+  // Cheque
+  cheque_number   String?      @db.VarChar(50)
+  bank_name       String? 
+
+  // Relations
+  items         SecondHandPurchaseItem[]
+  organization  Organization    @relation(fields: [organization_id], references: [id])
+  supplier      SupplierMaster  @relation(fields: [supplier_id], references: [supplierId])
+  dealer        DealerMaster?   @relation(fields: [dealer_id], references: [dealerId])
+  currency_info Currency        @relation(fields: [currency], references: [currencyId])
+  
+
+  @@map("tbl_secondhand_purchase")
+}
+
+model SecondHandPurchaseItem {
+  purchase_item_id Int @id @default(autoincrement())
+  purchase_id      Int
+
+  purchase_item_type PurchaseItemType
+
+  goods_id   Int?
+  service_id Int?
+
+  goods_service_name        String?
+  goods_service_description String?
+
+  unit_of_measurement_id Int
+
+  unit_price Decimal @db.Decimal(10, 2)
+  quantity   Decimal @db.Decimal(10, 2)
+  amount                     Decimal @db.Decimal(10, 2)
+  discount                   Decimal @db.Decimal(10, 2)
+  amount_after_discount      Decimal @db.Decimal(10, 2)
+  gst_amount                 Decimal @db.Decimal(10, 2)
+  gst_percentage             String?       @db.VarChar(500)
+  goods_service_total_amount Decimal @db.Decimal(10, 2) 
+
+  created_by Int
+  created_on DateTime @db.Date
+
+  // Relations
+  purchase      SecondHandPurchase @relation(fields: [purchase_id], references: [purchase_id], onDelete: Cascade)
+  goods         GoodsCatalog?      @relation("GoodsSecondHandPurchaseItems", fields: [goods_id], references: [goodsId])
+  service       ServiceCatalog?    @relation("ServiceSecondHandPurchaseItems", fields: [service_id], references: [service_id])
+
+  unitObject    Unit               @relation(fields: [unit_of_measurement_id], references: [id])
+  
+
+  @@index([purchase_id])
+  @@map("tbl_secondhand_purchase_items")
+}
+
+
+model InventoryMaster {
+  id              Int      @id @default(autoincrement())
+  
+  // Goods or Service reference
+  goods_id        Int?     // Reference to GoodsCatalog
+  service_id      Int?     // Reference to ServiceCatalog
+  
+  // Unit of measurement
+  unit_id         Int      // Unit of Measurement
+  
+  // Inventory details
+  price           Decimal  @db.Decimal(10, 2)  // Current price per unit
+  qty             Decimal  @db.Decimal(10, 2)  // Current quantity in stock
+  inventory_amount Decimal @db.Decimal(10, 2)  // Current inventory value (price * qty)
+  
+  
+  // Organization
+  organization_id Int
+  
+  // Timestamps
+  created_by Int?
+  updated_by Int?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  // Relations
+  goods           GoodsCatalog?    @relation(fields: [goods_id], references: [goodsId])
+  service         ServiceCatalog?  @relation(fields: [service_id], references: [service_id])
+  unit            Unit             @relation(fields: [unit_id], references: [id])
+  organization    Organization     @relation(fields: [organization_id], references: [id])
+  
+  // Indexes for better performance
+  @@index([goods_id])
+  @@index([service_id])
+  @@index([unit_id])
+  @@index([organization_id])
+  // Ensure either goods_id or service_id is set (but not both)
+  @@map("tbl_inventory_master")
+}
+
+
+
+
+
+
+
+model SecondHandSale {
+  second_hand_sales_id Int @id @default(autoincrement())
+
+  organization_id Int
+  customer_id     Int
+  currency        Int
+
+  customer_tpn  String? @db.VarChar(200)
+  customer_name String? @db.VarChar(500)
+
+  sales_date     DateTime @db.Date
+  sales_amount   Decimal  @db.Decimal(10, 2)
+  exempt_amount  Decimal  @db.Decimal(10, 2)
+  taxable_amount Decimal  @db.Decimal(10, 2)
+  gst_amount     Decimal  @db.Decimal(10, 2) @default(0)
+
+  total_invoice_amount Decimal @db.Decimal(10, 2) @default(0)
+
+  sales_invoice_no String? @db.VarChar(50)
+
+  status SalesStatus @default(IP)
+
+  payment_mode PaymentMode?
+
+  // Payment Gateway
+  transaction_id String? @db.VarChar(100)
+
+  // mBOB, mPAY, TPay, DrukPay, ePay, DK Bank
+  journal_number String? @db.VarChar(50)
+
+  // Cheque
+  cheque_number String? @db.VarChar(50)
+  bank_name     String?
+
+  created_by Int
+  created_on DateTime @db.Date
+
+  emailOriginalInvoiceSent EmailOriginalInvoiceSentStatus @default(Y)
+
+  // Relations
+  items SecondHandSaleItem[]
+
+  organization  Organization @relation(fields: [organization_id], references: [id])
+  customer      Party        @relation(fields: [customer_id], references: [partyId])
+  currency_info Currency     @relation(fields: [currency], references: [currencyId])
+
+  @@map("tbl_second_hand_sales")
+}
+
+
+
+
+
+
+
+model SecondHandSaleItem {
+  second_hand_sales_item_id Int @id @default(autoincrement())
+
+  second_hand_sales_id Int
+
+  sales_item_type SalesItemType
+
+  inventory_id    Int     
+  purchase_amount Decimal  @db.Decimal(10, 2) 
+
+  // Separate fields for goods and service
+  goods_id   Int?
+  service_id Int?
+
+  goods_service_name        String? @db.VarChar(500)
+  goods_service_description String? @db.VarChar(2500)
+  unit_of_measurement_id    Int
+
+  unit_price            Decimal @db.Decimal(10, 2)
+  quantity              Decimal @db.Decimal(10, 2)
+  amount                Decimal @db.Decimal(10, 2)
+  discount              Decimal @db.Decimal(10, 2)
+  amount_after_discount Decimal @db.Decimal(10, 2)
+  gst_amount            Decimal @db.Decimal(10, 2)
+  gst_percentage        String? @db.VarChar(500)
+  goods_service_total_amount Decimal @db.Decimal(10, 2)
+
+  created_by Int
+  created_on DateTime @db.Date
+
+  // Relations
+  second_hand_sales SecondHandSale @relation(fields: [second_hand_sales_id],references: [second_hand_sales_id],onDelete: Cascade)
+
+  goods           GoodsCatalog?    @relation(fields: [goods_id], references: [goodsId])
+  service         ServiceCatalog?  @relation(fields: [service_id], references: [service_id])
+ unit Unit @relation(fields: [unit_of_measurement_id], references: [id])
+
+
+  @@map("tbl_second_hand_sales_items")
+}
+
+
+
+model ActivityLog {
+  id              Int       @id @default(autoincrement())
+  userId          Int?
+  user            User?     @relation(fields: [userId], references: [id])
+
+  action          String    // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, EXPORT, VIEW
+  module          String    // sales, reports, customers, etc.
+  description     String?   // What happened
+  payload         Json?     // Request data/payload
+
+  ipAddress       String?
+  userAgent       String?
+
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+// prisma/schema.prisma
+
+// prisma/schema.prisma
+
+model Role {
+  id              Int       @id @default(autoincrement())
+  roleName        String    @unique
+  roleDescription String?
+  status          String    @default("A") // A=Active, I=Inactive
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  permissions     RoleToPermission[]
+
+  @@map("roles")
+}
+
+model RoleToPermission {
+  id              Int       @id @default(autoincrement())
+  roleId          Int
+  menuId          String    // References MenuMaster.id
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  role            Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  menu            MenuMaster  @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, menuId])
+  @@map("role_to_permissions")
+}
+
+// Your existing MenuModules and MenuMaster models remain the same
+model MenuModules {
+  id               String    @id @default(cuid())
+  moduleName       String    @unique
+  moduleDescription String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  menus            MenuMaster[]
+
+  @@map("menu_modules")
+}
+
+model MenuMaster {
+  id              String    @id @default(cuid())
+  moduleId        String
+  menuName        String
+  menuDescription String?
+  menuEndPoint    String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  module          MenuModules @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  rolePermissions RoleToPermission[]
+
+  @@unique([moduleId, menuName])
+  @@map("menu_master")
+}

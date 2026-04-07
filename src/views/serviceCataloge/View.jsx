@@ -1,0 +1,219 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import {
+  Tag,
+  Calendar,
+  Hash,
+  FileText
+} from 'lucide-react'
+
+// MUI
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+
+const View = ({ id }) => {
+  const [loading, setLoading] = useState(true)
+  const [service, setService] = useState(null)
+  const [theme, setTheme] = useState('light')
+
+  /* ---------------- Theme ---------------- */
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme =
+        localStorage.getItem('materio-mui-template-mode') || 'light'
+      setTheme(savedTheme)
+    }
+  }, [])
+
+  /* ---------------- Load Service ---------------- */
+  const loadService = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/service-catalog/${id}`)
+      const data = await res.json()
+
+      if (data?.slab) {
+        setService(data.slab)
+      }
+    } catch (err) {
+      console.error('Failed to load Service Catalog:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (id) loadService()
+  }, [id])
+
+  /* ---------------- Loading ---------------- */
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className={`mt-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            Loading Service Catalog...
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  /* ---------------- Not Found ---------------- */
+  if (!service) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-6 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="text-center">
+          <p className={`text-xl mb-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            Service not found
+          </p>
+          <Link href="/service-cataloge" passHref>
+            <Button variant="contained" sx={{
+                backgroundColor: "red",
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "#cc0000",
+                }
+              }}>
+              Close
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  /* ---------------- View ---------------- */
+  return (
+    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="max-w-4xl mx-auto">
+
+        {/* Card */}
+        <div className={`rounded-xl shadow-sm border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+          
+          {/* Header */}
+          <div className={`p-6 border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-indigo-900/30' : 'bg-indigo-100'}`}>
+                  <Tag className={`w-6 h-6 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`} />
+                </div>
+                <div>
+                  <h1 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                    {service.service_name}
+                  </h1>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Service Catalog Details
+                  </p>
+                </div>
+              </div>
+
+              <Chip
+                label={service.status === 'A' ? 'Active' : 'Inactive'}
+                color={service.status === 'A' ? 'success' : 'error'}
+                variant="outlined"
+              />
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              {/* Left */}
+              <div className="space-y-4">
+                <DetailItem
+                  theme={theme}
+                  icon={<Hash className="w-5 h-5" />}
+                  label="Service ID"
+                  value={`#${service.service_id}`}
+                />
+
+                <DetailItem
+                  theme={theme}
+                  icon={<Tag className="w-5 h-5" />}
+                  label="Service Name"
+                  value={service.service_name}
+                  highlight
+                />
+
+                <DetailItem
+                  theme={theme}
+                  icon={<Tag className="w-5 h-5" />}
+                  label="Service Code"
+                  value={service.service_code}
+                />
+              </div>
+
+              {/* Right */}
+              <div className="space-y-4">
+                <DetailItem
+                  theme={theme}
+                  icon={<Calendar className="w-5 h-5" />}
+                  label="Created At"
+                  value={new Date(service.createdAt).toLocaleDateString()}
+                />
+
+                <DetailItem
+                  theme={theme}
+                  icon={<Calendar className="w-5 h-5" />}
+                  label="Updated At"
+                  value={new Date(service.updatedAt).toLocaleDateString()}
+                />
+              </div>
+            </div>
+
+            {service.service_description && (
+              <div className="mt-6">
+                <DetailItem
+                  theme={theme}
+                  icon={<FileText className="w-5 h-5" />}
+                  label="Description"
+                  value={service.service_description}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="p-6 border-t flex ">
+            <Link href="/service-cataloge" passHref>
+              <Button variant="contained" sx={{
+                backgroundColor: "red",
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "#cc0000",
+                }
+              }}>
+                Close
+              </Button>
+            </Link>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ---------------- Detail Item ---------------- */
+const DetailItem = ({ theme, icon, label, value, highlight = false }) => (
+  <div className="flex items-start">
+    <div className={`p-2 rounded-lg mr-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+      {icon}
+    </div>
+    <div className="flex-1">
+      <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+        {label}
+      </div>
+      <div className={`mt-1 ${highlight ? 'font-semibold text-lg' : 'text-base'} ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+        {value}
+      </div>
+    </div>
+  </div>
+)
+
+export default View

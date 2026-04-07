@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --border-radius: var(--mui-shape-borderRadius);
+  --border-color: var(--mui-palette-divider);
+  --primary-color: var(--mui-palette-primary-main);
+  --background-color: var(--mui-palette-background-default);
+  --header-height: 64px;
+  --header-z-index: var(--mui-zIndex-appBar);
+  --footer-z-index: 10;
+  --customizer-z-index: var(--mui-zIndex-drawer);
+  --search-z-index: var(--mui-zIndex-tooltip);
+  --drawer-z-index: var(--mui-zIndex-drawer);
+  --backdrop-color: rgb(var(--mui-mainColorChannels-light) / 0.5);
+}
+
+[data-mui-color-scheme='dark'] {
+  --backdrop-color: rgb(21 16 43 / 0.6);
+}
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  border-width: 0;
+  border-style: solid;
+  border-color: theme('borderColor.DEFAULT', currentColor);
+}
+
+html {
+  display: flex;
+  inline-size: 100%;
+  min-block-size: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul:not([class]) {
+  margin-block: 1rem;
+  padding-inline-start: 40px;
+}
+
+.ps__rail-y {
+  inset-inline-end: 0 !important;
+  inset-inline-start: auto !important;
+  & .ps__thumb-y {
+    inset-inline-end: 3px !important;
+    inset-inline-start: auto !important;
+    background-color: var(--mui-palette-divider);
+    inline-size: 6px;
+    &:hover,
+    &:focus,
+    &.ps--clicking {
+      background-color: var(--mui-palette-action-disabled) !important;
+    }
+  }
+  &:hover,
+  &:focus,
+  &.ps--clicking {
+    background-color: var(--mui-palette-action-hover) !important;
+  }
+  &:hover,
+  &:focus,
+  &.ps--clicking {
+    .ps__thumb-y {
+      background-color: var(--mui-palette-action-disabled) !important;
+    }
+  }
+}
+
+.ts-vertical-nav-root {
+  .ps__thumb-y {
+    inline-size: 4px;
+    &:hover,
+    &:focus,
+    &.ps--clicking {
+      inline-size: 6px;
+    }
+  }
+  .ps__rail-y {
+    inline-size: 10px;
+    &:hover,
+    &:focus,
+    &.ps--clicking {
+      background-color: transparent !important;
+      .ps__thumb-y {
+        inline-size: 6px;
+      }
+    }
+  }
+}
+
+:where([class^='ri-']) {
+  font-size: 1.5rem;
+}
+
+code {
+  font-family: inherit;
+  padding-block: 2px;
+  padding-inline: 4px;
+  border-radius: 4px;
+  font-size: 90%;
+  color: var(--mui-palette-info-main);
+  background-color: rgb(var(--mui-palette-info-mainChannel) / 0.08);
+  border: 0;
+}
+
+
+.ts-menu-button.ts-active {
+    color: var(--mui-palette-primary-contrastText) !important;
+    background: linear-gradient(
+        270deg,
+        rgb(249 115 22 / 1),
+        rgb(234 88 12 / 1)
+    ) !important;
+}
+
+.MuiCircularProgress-root {
+    color: #f97316 !important; /* orange-500 */
+}
+
+.MuiAvatar-colorDefault {
+    background-color: #f97316 !important; /* orange-500 */
+    color: #fff !important;
+}
+
+.MuiTypography-h4 {
+    color: #f97316 !important; /* orange-500 */
+}
+
+.MuiTypography-h6 {
+    color: #f97316 !important; /* orange-500 */
+}
+
+
+
+
+
+
+
+
+
+
+
+.MuiButton-containedPrimary {
+    background-color: #f97316 !important;
+}
+
+.MuiButton-containedPrimary:hover {
+    background-color: #ea580c !important;
+}
+
+/* Override Tailwind blue buttons to orange */
+.bg-blue-600 {
+    background-color: #f97316 !important; /* orange-500 */
+}
+
+.hover\:bg-blue-700:hover {
+    background-color: #ea580c !important; /* orange-600 */
+}
+
+/* --- Table list pages (map-gst-rates, role, etc.): action menus above scroll/clipping --- */
+.table-list-card-shell {
+    overflow: visible;
+}
+
+.table-list-scroll-x {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+/* Rendered via createPortal on document.body so it is not clipped by overflow-x-auto / cards */
+.table-row-actions-dropdown {
+    position: fixed;
+    z-index: 10000;
+    min-width: 10rem;
+    padding: 0.25rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(229 231 235);
+    background-color: #fff;
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.08),
+        0 4px 6px -4px rgb(0 0 0 / 0.06);
+}
+
+.table-row-actions-dropdown--dark {
+    border-color: rgb(55 65 81);
+    background-color: rgb(31 41 55);
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.35),
+        0 4px 6px -4px rgb(0 0 0 / 0.25);
+}
+

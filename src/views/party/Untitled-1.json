@@ -1,0 +1,85 @@
+
+// business party sample data
+{
+    "partyType": "BUSINESS",
+    "status": "A",
+    "licenseNo": "Fuga Quia velit iu",
+    "companyRegistrationNo": "Lester Witt Associates",
+    "businessLicenseRegion": "Beatae exercitatione",
+    "taxPayerRegStatus": "YES",
+    "taxPayerRegNo": "Id aliqua Voluptat",
+    "taxPayerRegion": "Recusandae Tempora ",
+    "address": "Laudantium anim ea ",
+    "officeEmail": "wutijykovi@mailinator.com",
+    "officePhone": "+1 (635) 757-4198",
+    "representativeName": "Amir Stout",
+    "representativeEmail": "wuqilew@mailinator.com",
+    "representativePhone": "+1 (268) 463-1753",
+    "contactName": "Amir Stout",
+    "contactEmail": "wuqilew@mailinator.com",
+    "contactPhone": "+1 (268) 463-1753"
+}
+
+
+// govt party sample data
+{
+    "partyType": "GOVERNMENT_AGENCY",
+    "status": "A",
+    "agencyName": "Gabriel Lowe",
+    "taxPayerRegStatus": "YES",
+    "taxPayerRegNo": "Minima nostrum deser",
+    "taxPayerRegion": "Id voluptas voluptat",
+    "address": "Proident in facilis",
+    "officeEmail": "xucohomofe@mailinator.com",
+    "officePhone": "+1 (305) 287-8596",
+    "contactName": "Adam Deleon",
+    "contactEmail": "puvycexiw@mailinator.com",
+    "contactPhone": "+1 (973) 243-4965"
+}
+
+// corporation party sample data
+{
+    "partyType": "CORPORATION",
+    "status": "A",
+    "corporationName": "Brandon Jackson",
+    "taxPayerRegStatus": "YES",
+    "taxPayerRegNo": "Rerum libero esse si",
+    "taxPayerRegion": "Non non provident a",
+    "address": "Deserunt odio aut er",
+    "officeEmail": "howynuna@mailinator.com",
+    "officePhone": "+1 (605) 133-6366",
+    "contactName": "Isabella Herrera",
+    "contactEmail": "nobo@mailinator.com",
+    "contactPhone": "+1 (206) 232-6266"
+}
+
+
+// individual party sample data
+{
+    "partyType": "INDIVIDUAL",
+    "status": "A",
+    "cid": "Aute vel suscipit ul",
+    "taxPayerRegStatus": "YES",
+    "taxPayerRegNo": "Sit velit amet exer",
+    "taxPayerRegion": "Quia libero tenetur ",
+    "email": "cacy@mailinator.com",
+    "phone": "+1 (706) 328-8834",
+    "officeEmail": "cacy@mailinator.com",
+    "officePhone": "+1 (706) 328-8834"
+}
+
+// cso
+{
+    "partyType": "CSO",
+    "status": "A",
+    "csoRegistrationNo": "Placeat dolorum sun",
+    "taxPayerRegStatus": "YES",
+    "taxPayerRegNo": "Consectetur eos ex",
+    "taxPayerRegion": "Odio officia eum cor",
+    "address": "Natus sed accusamus ",
+    "officeEmail": "defa@mailinator.com",
+    "officePhone": "+1 (566) 621-5742",
+    "contactName": "Roth Hatfield",
+    "contactEmail": "xyxi@mailinator.com",
+    "contactPhone": "+1 (331) 356-8861"
+}
